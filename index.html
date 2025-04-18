@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sales Prediction App</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 40px;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px #ccc;
+        }
+        h1 {
+            margin-bottom: 30px;
+        }
+        .result {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 class="text-center">Sales Prediction App</h1>
+    <form method="post">
+        <div class="mb-3">
+            <label for="Item_Weight" class="form-label">Item Weight</label>
+            <input type="number" step="0.01" class="form-control" name="Item_Weight" id="Item_Weight"
+                   value="{{ form_data.Item_Weight if form_data else '' }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="Item_Fat_Content" class="form-label">Item Fat Content</label>
+            <select class="form-select" name="Item_Fat_Content" id="Item_Fat_Content" required>
+                {% set options = ['Low Fat', 'Regular'] %}
+                {% for opt in options %}
+                    <option value="{{ opt }}" {% if form_data and form_data.Item_Fat_Content == opt %}selected{% endif %}>{{ opt }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="Item_Visibility" class="form-label">Item Visibility</label>
+            <input type="number" step="0.01" class="form-control" name="Item_Visibility" id="Item_Visibility"
+                   value="{{ form_data.Item_Visibility if form_data else '' }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="Item_Type" class="form-label">Item Type</label>
+            <select class="form-select" name="Item_Type" id="Item_Type" required>
+                {% set item_types = [
+                    'Dairy', 'Soft Drinks', 'Meat', 'Fruits and Vegetables', 'Household',
+                    'Baking Goods', 'Snack Foods', 'Frozen Foods', 'Breakfast', 'Health and Hygiene',
+                    'Hard Drinks', 'Canned', 'Breads', 'Starchy Foods', 'Others',
+                    'Seafood']
+                %}
+                {% for item in item_types %}
+                    <option value="{{ item }}" {% if form_data and form_data.Item_Type == item %}selected{% endif %}>{{ item }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="Item_MRP" class="form-label">Item MRP</label>
+            <input type="number" step="0.01" class="form-control" name="Item_MRP" id="Item_MRP"
+                   value="{{ form_data.Item_MRP if form_data else '' }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="Outlet_Size" class="form-label">Outlet Size</label>
+            <select class="form-select" name="Outlet_Size" id="Outlet_Size" required>
+                {% set outlet_sizes = ['Small', 'Medium', 'High'] %}
+                {% for size in outlet_sizes %}
+                    <option value="{{ size }}" {% if form_data and form_data.Outlet_Size == size %}selected{% endif %}>{{ size }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="Outlet_Location_Type" class="form-label">Outlet Location Type</label>
+            <select class="form-select" name="Outlet_Location_Type" id="Outlet_Location_Type" required>
+                {% set locations = ['Tier 1', 'Tier 2', 'Tier 3'] %}
+                {% for loc in locations %}
+                    <option value="{{ loc }}" {% if form_data and form_data.Outlet_Location_Type == loc %}selected{% endif %}>{{ loc }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="Outlet_Type" class="form-label">Outlet Type</label>
+            <select class="form-select" name="Outlet_Type" id="Outlet_Type" required>
+                {% set types = ['Supermarket Type1', 'Supermarket Type2', 'Supermarket Type3', 'Grocery Store'] %}
+                {% for t in types %}
+                    <option value="{{ t }}" {% if form_data and form_data.Outlet_Type == t %}selected{% endif %}>{{ t }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary">Predict Sales</button>
+        </div>
+    </form>
+
+    {% if prediction %}
+        <div class="result text-center">
+            <h2 class="mt-4">Predicted Sales: ₹{{ prediction }}</h2>
+            <canvas id="comparisonChart" width="400" height="200" class="mt-4"></canvas>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const prediction = parseFloat("{{ prediction }}");
+        const average = parseFloat("{{ average_sales }}");
+
+        const ctx = document.getElementById('comparisonChart').getContext('2d');
+        const comparisonChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Predicted Sales', 'Average Sales'],
+                datasets: [{
+                    label: 'Sales Comparison',
+                    data: [prediction, average],
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 99, 132, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 99, 132, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+    {% endif %}
+</div>
+</body>
+</html>
